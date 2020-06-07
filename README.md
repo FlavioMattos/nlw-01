@@ -46,7 +46,7 @@ O projeto tem como finalidade **estabelecer uma conexão** entre **empresas e/ou
   - **[React Leaflet][react_leaflet]**
 
 
-  \* Veja o arquivo <kbd>[package.json](./website/package.json)</kbd>
+  \* Veja o arquivo <kbd>[package.json](./web/package.json)</kbd>
 
 #### **Server** ([NodeJS][node] + [TypeScript][typescript])
 
