@@ -1,23 +1,61 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, ChangeEvent } from 'react';
 import { Feather as Icon } from '@expo/vector-icons'
-import { View, ImageBackground, Image, StyleSheet, Text, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, ImageBackground, Image, StyleSheet, Text, TextInput, KeyboardAvoidingView, Platform, Picker, SafeAreaView } from 'react-native';
 import { RectButton } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native'
+import axios from 'axios'
+
+interface IBGEUFResponse {
+  sigla: string;
+}
+
+interface IBGECityResponse {
+  nome: string;
+}
 
 const Home = () => {
-  const [ uf, setUf ] = useState<string>('');
-  const [ city, setCity ] = useState<string>('');
+  const [ ufs, setUfs ] = useState<string[]>([]);
+  const [ cities, setCities ] = useState<string[]>([]);
+
+  const [ selectedUf, setSelectedUf ] = useState('0');
+  const [ selectedCity, setSelectedCity ] = useState('0');
 
   const navigation = useNavigation();
 
   function handleNavigateToPoints() {
     navigation.navigate('Points', {
-      uf,
-      city
+      selectedUf,
+      selectedCity,
     });
   }
 
+  useEffect(() => {
+    axios.get<IBGEUFResponse[]>('https://servicodados.ibge.gov.br/api/v1/localidades/estados').then(response => {
+        const ufInitials = response.data.map(uf => uf.sigla);
+        setUfs(ufInitials);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (selectedUf === '0') {
+        return;
+    }
+    axios.get<IBGECityResponse[]>(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${selectedUf}/municipios`).then(response => {
+        const cityNames = response.data.map(city => city.nome);
+        setCities(cityNames);
+    });
+}, [selectedUf]);
+
+  function handleSelectUf(uf: ChangeEvent<string>) {
+    setSelectedUf(String(uf));
+  }
+
+  function handleSelectCity(city: ChangeEvent<string>) {
+      setSelectedCity(String(city));
+  }
+
   return (
+    <SafeAreaView style={{ flex:1 }}>
     <KeyboardAvoidingView style={{ flex:1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ImageBackground 
         source={require('../../assets/home-background.png')} 
@@ -34,23 +72,19 @@ const Home = () => {
 
         <View style={styles.footer}>
 
-          <TextInput 
-            style={styles.input}
-            placeholder="Digite a UF"
-            value={uf}
-            maxLength={2}
-            autoCapitalize="characters"
-            autoCorrect={false}
-            onChangeText={setUf}
-          />
+          <Picker style={styles.onePicker} itemStyle={styles.onePickerItem} selectedValue={selectedUf} onValueChange={handleSelectUf}>
+            <Picker.Item value="0" label="Selecione uma UF" />
+            {ufs.map(uf => (
+              <Picker.Item key={uf} label={uf} value={uf} />
+            ))}
+          </Picker>
 
-          <TextInput 
-            style={styles.input}
-            placeholder="Digite a Cidade"
-            value={city}
-            autoCorrect={false}
-            onChangeText={setCity}
-          />
+          <Picker style={styles.onePicker} itemStyle={styles.onePickerItem} selectedValue={selectedCity} onValueChange={handleSelectCity}>
+            <Picker.Item value="0" label="Selecione uma cidade"/>
+            {cities.map(city => (
+              <Picker.Item key={city} label={city} value={city} />
+            ))}
+          </Picker>
 
           <RectButton style={styles.button} onPress={handleNavigateToPoints}>
             <View style={styles.buttonIcon}>
@@ -62,9 +96,11 @@ const Home = () => {
               Entrar
             </Text>
           </RectButton>
+
         </View>
       </ImageBackground>
     </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
 
@@ -99,14 +135,18 @@ const styles = StyleSheet.create({
     footer: {},
   
     select: {},
-  
-    input: {
-      height: 60,
+
+    onePicker: {
+      height: 40,
       backgroundColor: '#FFF',
       borderRadius: 10,
       marginBottom: 8,
       paddingHorizontal: 24,
-      fontSize: 16,
+      fontSize: 16
+    },
+
+    onePickerItem: {
+      height: 40,
     },
   
     button: {
