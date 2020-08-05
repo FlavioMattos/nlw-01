@@ -88,9 +88,9 @@ Esse repositório está licenciado pela **MIT LICENSE**. Para mais informações
 
 <!-- Badges -->
 
-[github_issues_badge]: https://img.shields.io/github/issues/x0n4d0/ecoleta?color=green
+[github_issues_badge]: https://img.shields.io/github/issues/FlavioMattos/nlw-01
 
-[repository_license_badge]: https://img.shields.io/github/license/x0n4d0/ecoleta
+[repository_license_badge]: https://img.shields.io/github/license/FlavioMattos/nlw-01
 
 [node_version_badge]: https://img.shields.io/badge/node-12.17.0-green
 
